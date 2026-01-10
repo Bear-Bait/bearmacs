@@ -1,0 +1,23 @@
+.DS_Store
+.idea
+*.log
+tmp/
+.local/
+*.elc
+/custom.el
+.extension/
+*.cache
+projects
+drafts/
+.aider*
+
+# Security - Never commit these files with sensitive data
+.env
+myenv
+*.backup
+*.backup2
+*.old
+config-macos.el.local
+.authinfo
+.authinfo.gpg
+plstore
