@@ -1852,4 +1852,8 @@ SPC A t - Show transient menu"))
   (define-key sclang-mode-map (kbd "C-M-x") 'sclang-eval-defun)
   (define-key sclang-mode-map (kbd "C-c C-b") 'sclang-boot-server)
   (define-key sclang-mode-map (kbd "C-c C-y") 'sclang-help-gui)
+
+  ;; NOTE: Disabled company-mode - using Corfu instead
+  ;; (add-hook 'sclang-mode-hook 'company-mode)
+  ;; (add-to-list 'company-backends 'company-sc)
   )
