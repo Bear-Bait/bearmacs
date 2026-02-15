@@ -1,0 +1,44 @@
+* Unit: %(org-roam-get-capture-property :unit-num)
+
+** Hardware Inspection
+- Visual inspection:
+- Battery leads connected?:
+- Power on -> LED lights up?:
+- Mic switch position (fully engaged?):
+
+** WiFi Connectivity
+- Connects to AP (Toolkit-XXXX)?:
+- Can browse to http://192.168.4.1?:
+- Configured SSID "fred":
+- "Connected to: fred" message?:
+- Assigned IP address:
+
+** Transmitting Mode Test
+- Stream mounts?:
+- Audio audible?:
+- Audio quality (clean / distorted / corrupted / silent):
+- ffplay output/observations:
+
+** Receiving Mode Test
+- Can hear WGXC stream (headphones)?:
+
+** Potentiometer Test
+- Line-in pot functional (smooth / erratic / non-functional)?:
+- Headphone pot functional (smooth / erratic / non-functional)?:
+- WebUI interaction bugs?:
+
+** Mic Gain Test
+- Mic gain (soft) feedback/distortion?:
+- Mic gain (medium) feedback/distortion?:
+- Mic gain (loud) feedback/distortion?:
+
+** Summary
+- WiFi connects? (Y/N):
+- Stream mounts? (Y/N):
+- Audio audible? (Y/N):
+- Audio quality (clean / distorted / corrupted / silent):
+- Receiving mode works? (Y/N):
+- Pots functional? (smooth / erratic / non-functional):
+- Mic gain working? (Y/N):
+- Hardware issues (switches, LEDs, etc.):
+- Unique behaviors / notes:

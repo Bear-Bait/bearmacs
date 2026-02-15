@@ -50,6 +50,8 @@
 ;; (unpin! t)
 
 ;; General packages
+(package! org-roam)
+(package! org-roam-ui)
 (package! evil-tutor)
 ;; REMOVED: exwm is Linux-only (X11 window manager)
 (package! writegood-mode)

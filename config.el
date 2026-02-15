@@ -92,8 +92,8 @@ Warn user if variable is not set and no default provided."
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/cloud/org/")
 
-;;(after! emacsql
-;;	(setq emacsql-sqlite-executable "/usr/bin/sqlite3"))
+(after! emacsql
+	(setq emacsql-sqlite-executable "/usr/bin/sqlite3"))
 ;;; Configure lockfiles to prevent sync conflicts
 (setq create-lockfiles t)  ; Enable lockfiles globally
 
@@ -478,13 +478,22 @@ Automatically inverts behavior for bottom/rightmost windows."
 ;; Your existing files won't have the necessary metadata
 ;; so they won't show up in Org Roam's database. from
 ;; [[org:germanlit/roaminstructions.org][From claude.]]
-;;(use-package! org-roam
-;;  :custom
-;;  (org-roam-directory "~/cloud/org/roam")
-;;  (org-roam-completion-everywhere t)
-;;  (org-roam-database-connector 'sqlite3-builtin)
-;;  :config
-;;  (org-roam-db-autosync-mode))
+(use-package! org-roam
+  :init
+  (setq org-roam-v2-ack t) ; Acknowledge Org Roam v2
+  :custom
+  (org-roam-directory "~/cloud/org/roam") ; Set your desired directory for notes
+  (org-roam-db-location "~/.doom.d/.local/org-roam-db/org-roam.db") ; Set local directory for the database
+  (org-roam-completion-everywhere t)
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert))
+  :config
+  ;; Ensure the local database directory exists
+  (let ((db-dir (file-name-directory org-roam-db-location)))
+    (unless (file-exists-p db-dir)
+      (make-directory db-dir t)))
+  (org-roam-db-autosync-mode))
 
 ;; Node display configuration
 ;;(after! org-roam
@@ -492,22 +501,6 @@ Automatically inverts behavior for bottom/rightmost windows."
 ;;        (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag))))
 
 ;; Capture templates
-;;(setq org-roam-capture-templates
-;;     '(("d" "default" plain
-;;         "%?"
-;;         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
-;;                           "#+title: ${title}\n#+filetags: :magic_mountain:\n\n")
-;;         :unnarrowed t)
-;;        ("c" "character" plain
-;;         (file "templates/character.org")
-;;         :target (file+head "characters/${slug}.org"
-;;                           "#+title: ${title}\n#+filetags: :character:magic_mountain:\n\n")
-;;         :unnarrowed t)
-;;        ("t" "theme" plain
-;;         (file "templates/theme.org")
-;;         :target (file+head "themes/${slug}.org"
-;;                           "#+title: ${title}\n#+filetags: :theme:magic_mountain:\n\n")
-;;         :unnarrowed t)))
 ;;
 ;; Graph visualization settings
 ;; Graph visualization settings with dot to SVG conversion
@@ -541,14 +534,23 @@ Automatically inverts behavior for bottom/rightmost windows."
 ;;                         nodes)
 ;;                         ",")))))
 ;; Daily notes configuration
-;;(use-package! org-roam-dailies
-;;  :config
-;;  (setq org-roam-dailies-directory "daily/")
-;;  (setq org-roam-dailies-capture-templates
-;;        '(("d" "default" entry
-;;           "* %?"
-;;           :target (file+head "%<%Y-%m-%d>.org"
-;;                            "#+title: %<%Y-%m-%d>\n")))))
+(use-package! org-roam-dailies
+  :after org-roam
+  :config
+  (setq org-roam-dailies-directory "daily/")
+  (setq org-roam-dailies-capture-templates
+        '(("d" "default" entry
+           "* %?"
+           :target (file+head "%<%Y-%m-%d>.org"
+                            "#+title: %<%Y-%m-%d>\n")))))
+
+;; Org-roam-ui configuration
+(use-package! org-roam-ui
+  :after org-roam
+  :config
+  (setq org-roam-ui-browser-function 'eww-browse-url) ; Use eww for internal browser
+  (setq org-roam-ui-open-on-start t)) ; Open UI on Emacs start
+
 (after! ox-hugo
   (setq org-hugo-base-dir "~/cloud.bear/writing/blog")
   (setq org-hugo-section "posts"))
@@ -1023,14 +1025,25 @@ Preserves paragraph breaks but removes mid-sentence line breaks."
   (setq org-mobile-directory "~/cloud/org/mobile/"
         org-mobile-inbox-for-pull "~/cloud/org/mobile/inbox.org")
 
-  ;; Daily reminders capture template
+  ;; Capture templates: Daily Reminders only (r)
+  ;; Toolkit Unit Test handled via org-roam-capture-templates below
   (setq org-capture-templates
         '(("r" "Daily Reminders" entry
            (file+datetree "~/cloud/org/main/diary2025.org")
-           "* Daily Tasks - %<%A, %B %d, %Y>
-- [ ] Write 500 words
-- [ ] Read for 1 hour (morning or before bed)
-- [ ] Practice German"))))
+           "* Daily Tasks - %<%A, %B %d, %Y>\n- [ ] Write 500 words\n- [ ] Read for 1 hour (morning or before bed)\n- [ ] Practice German")))
+
+  ;; Org-roam capture templates for toolkit testing
+  (after! org-roam
+    (setq org-roam-capture-templates
+          '(("d" "default" plain "%?"
+             :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n")
+             :unnarrowed t)
+            ("u" "Toolkit Unit Test" plain
+             (file "~/.doom.d/templates/toolkit-unit-test.org")
+             :target (file+head "toolkit/unit-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :toolkit:testing:\n")
+             :unnarrowed t)))))
 
 ;; Fixed export function - replace the current one in your config
 (defun export-diary-todos-to-mobile ()
@@ -1199,7 +1212,7 @@ Preserves paragraph breaks but removes mid-sentence line breaks."
 ;;   (set-email-account! "Gmail"                                                                                 ;;
 ;;     '((mu4e-sent-folder       . "/Sent Mail")                                                                 ;;
 ;;       (mu4e-drafts-folder     . "/Drafts")                                                                    ;;
-;;       (mu4e-trash-folder      . "/Trash")                                                                     ;;
+;;       (mu4e-trash-folder      . "/Trash")                                                                    ;;
 ;;       (mu4e-refile-folder     . "/All Mail")                                                                  ;;
 ;;       (smtpmail-smtp-user     . "forrestmuelrath@gmail.com")                                                  ;;
 ;;       (user-mail-address      . "forrestmuelrath@gmail.com")                                                  ;;
@@ -1336,6 +1349,7 @@ SPC A t - Show transient menu"))
 ;; GPTel configuration for Claude (updated)
 (after! gptel
   (require 'gptel-anthropic)
+  (require 'gptel-openai)
 
   ;; Define Anthropic backends
   (gptel-make-anthropic "Claude-Haiku-4.5"
@@ -1354,6 +1368,28 @@ SPC A t - Show transient menu"))
     :key (get-env-or-warn "ANTHROPIC_API_KEY")
     :models '(claude-3-7-sonnet-20250219))
 
+  ;; Google Gemini backends
+  (gptel-make-openai "Gemini-Pro"
+    :host "generativelanguage.googleapis.com"
+    :endpoint "/v1beta/models/gemini-pro:generateContent"
+    :key (getenv "GEMINI_API_KEY")
+    :models '(gemini-pro)
+    :stream t)
+
+  (gptel-make-openai "Gemini-Pro-Vision"
+    :host "generativelanguage.googleapis.com"
+    :endpoint "/v1beta/models/gemini-pro-vision:generateContent"
+    :key (getenv "GEMINI_API_KEY")
+    :models '(gemini-pro-vision)
+    :stream t)
+
+  ;; Big-Pickle (OpenAI-compatible endpoint)
+  (gptel-make-openai "Big-Pickle"
+    :host "api.openai.com"
+    :key (get-env-or-warn "OPENAI_API_KEY")
+    :models '(gpt-4-turbo-preview gpt-4 gpt-3.5-turbo)
+    :stream t)
+
   ;; Set Haiku 4.5 as default
   (setq-default
    gptel-backend (gptel-get-backend "Claude-Haiku-4.5")
@@ -1363,7 +1399,12 @@ SPC A t - Show transient menu"))
   (setq gptel-model-alist
         '((claude-haiku-4-5-20251001 . "Haiku 4.5")
           (claude-sonnet-4-5-20250929 . "Sonnet 4.5")
-          (claude-3-7-sonnet-20250219 . "Sonnet 3.7 (deprecated)")))
+          (claude-3-7-sonnet-20250219 . "Sonnet 3.7 (deprecated)")
+          (gemini-pro . "Gemini Pro")
+          (gemini-pro-vision . "Gemini Pro Vision")
+          (gpt-4-turbo-preview . "GPT-4 Turbo")
+          (gpt-4 . "GPT-4")
+          (gpt-3.5-turbo . "GPT-3.5 Turbo")))
 
   ;; Keybindings
   (map! :leader
@@ -1381,12 +1422,24 @@ SPC A t - Show transient menu"))
              (setq gptel-backend (gptel-get-backend "Claude-Haiku-4.5")
                    gptel-model 'claude-haiku-4-5-20251001)
              (message "Switched to Claude Haiku 4.5"))
-         :desc "Switch to Sonnet 3.7 (fallback)" "3"
-           (lambda ()
-             (interactive)
-             (setq gptel-backend (gptel-get-backend "Claude-Sonnet-3.7")
-                   gptel-model 'claude-3-7-sonnet-20250219)
-             (message "Switched to Claude Sonnet 3.7 (deprecated)"))
+          :desc "Switch to Sonnet 3.7 (fallback)" "3"
+            (lambda ()
+              (interactive)
+              (setq gptel-backend (gptel-get-backend "Claude-Sonnet-3.7")
+                    gptel-model 'claude-3-7-sonnet-20250219)
+              (message "Switched to Claude Sonnet 3.7 (deprecated)"))
+          :desc "Switch to Gemini Pro" "g"
+            (lambda ()
+              (interactive)
+              (setq gptel-backend (gptel-get-backend "Gemini-Pro")
+                    gptel-model 'gemini-pro)
+              (message "Switched to Gemini Pro"))
+          :desc "Switch to Big-Pickle (GPT-4)" "b"
+            (lambda ()
+              (interactive)
+              (setq gptel-backend (gptel-get-backend "Big-Pickle")
+                    gptel-model 'gpt-4-turbo-preview)
+              (message "Switched to Big-Pickle (GPT-4 Turbo)"))
          :desc "Start Claude chat" "c" #'gptel
          :desc "Rewrite region" "r" #'gptel-rewrite
          :desc "Toggle gptel mode" "t" #'gptel-mode))
@@ -1528,11 +1581,7 @@ SPC A t - Show transient menu"))
 ;; (after! org                                              ;;
 ;;   (setq org-persist-disable-when-emacs-Q t               ;;
 ;;         org-persist-directory nil                        ;;
-;;         org-persist--index nil)                          ;;
-;;   (advice-add 'org-persist-write-all :override #'ignore) ;;
-;;   (advice-add 'org-persist-read-all :override #'ignore)  ;;
-;;   (advice-add 'org-persist-write :override #'ignore)     ;;
-;;   (advice-add 'org-persist-read :override #'ignore))     ;;
+;;         (advice-add 'org-persist-read :override #'ignore))     ;;
 ;;                                                          ;;
 ;; ;; Fix URL cookie performance disaster                   ;;
 ;; (setq url-cookie-file nil                                ;;
@@ -1679,7 +1728,7 @@ SPC A t - Show transient menu"))
 ;;`MMMMMMMb.     dM.    `MM\     `M'`MM\     `M'`MMMMMMMMM `MMMMMMMb.
 ;; MM    `Mb    ,MMb     MMM\     M  MMM\     M  MM      \  MM    `Mb
 ;; MM     MM    d'YM.    M\MM\    M  M\MM\    M  MM         MM     MM
-;; MM    .M9   ,P `Mb    M \MM\   M  M \MM\   M  MM    ,    MM     MM
+;; MM    .M9   ,P `Mb    M \MM\   M  M  \MM\  M  MM    ,    MM     MM
 ;; MMMMMMM(    d'  YM.   M  \MM\  M  M  \MM\  M  MMMMMMM    MM    .M9
 ;; MM    `Mb  ,P   `Mb   M   \MM\ M  M   \MM\ M  MM    `    MMMMMMM9'
 ;; MM     MM  d'    YM.  M    \MM\M  M    \MM\M  MM         MM  \M\
@@ -1854,6 +1903,18 @@ SPC A t - Show transient menu"))
   (define-key sclang-mode-map (kbd "C-c C-y") 'sclang-help-gui)
 
   ;; NOTE: Disabled company-mode - using Corfu instead
+  ;; SuperCollider-specific gptel configuration (without enabling gptel-mode)
+  ;; gptel-mode is not compatible with sclang-mode, but you can still use gptel functions
+  (add-hook 'sclang-mode-hook
+            (lambda ()
+              ;; Only set gptel config if gptel is loaded
+              (when (featurep 'gptel)
+                (setq-local gptel-directives
+                            '((default . "You are a SuperCollider expert. Help me write, debug, and optimize sclang code. Follow best practices for synthesis, patterns, and server communication.")
+                              (programming . "Focus on sclang syntax, UGen usage, and efficient server patterns."))
+                  gptel-model 'claude-haiku-4-5-20251001
+                  gptel-backend (gptel-get-backend "Claude-Haiku-4.5")))))
+
   ;; (add-hook 'sclang-mode-hook 'company-mode)
   ;; (add-to-list 'company-backends 'company-sc)
   )

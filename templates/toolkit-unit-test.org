@@ -1,0 +1,60 @@
+** PHASE 1: Hardware Inspection
+- [ ] Visual inspection: switches, pots, jacks, solder joints
+- [ ] Battery leads connected?
+- [ ] Power on → LED lights up?
+- [ ] Mic switch fully engaged?
+
+** PHASE 2: WiFi Connectivity
+- [ ] Connect to Toolkit AP
+- [ ] Browse to http://192.168.4.1
+- [ ] Configure SSID: fred
+- [ ] Save, wait 30 sec, reconnect
+- [ ] Verify "Connected to: fred"
+- [ ] Note assigned IP: ___________
+
+** PHASE 3: Transmitting Mode
+- [ ] Icecast: partneraudio.wavefarm.org:8000 source/toolkit_048
+- [ ] Mountpoint: /toolkit_test_unitX.mp3
+- [ ] Encoder: 44100Hz, 128kbps, Stereo, Gain 0.5, no AGC
+- [ ] Startup: Transmitting
+- [ ] Hardware: Input RIGHT (mic), Mic MEDIUM, Mode RIGHT
+- [ ] Power cycle, wait 90sec
+- [ ] Stream mounts? Y/N
+- [ ] Audio audible? Y/N
+- [ ] Quality: [clean / distorted / corrupted / silent]
+- [ ] Notes: %?
+
+** PHASE 4: Receiving Mode
+- [ ] URL: audio.wavefarm.org:8000/wgxc.mp3
+- [ ] Volume: 0.5
+- [ ] Startup: Listening
+- [ ] Power cycle, plug in headphones
+- [ ] Can hear WGXC? Y/N
+- [ ] Notes:
+
+** PHASE 5: Potentiometer Test
+- [ ] Mode: Transmitting
+- [ ] Input: LEFT (line-in with phone/laptop audio)
+- [ ] Line-in pot smooth/erratic?
+- [ ] Headphone pot smooth/erratic?
+- [ ] WebUI interaction bugs? Y/N
+- [ ] Notes:
+
+** PHASE 6: Mic Gain Test
+- [ ] Input: RIGHT (mic)
+- [ ] Soft: feedback? distortion?
+- [ ] Medium: feedback? distortion?
+- [ ] Loud: feedback? distortion?
+- [ ] Notes:
+
+** RESULTS SUMMARY
+| Test | Result | Notes |
+|------|--------|-------|
+| WiFi connects | | |
+| Stream mounts | | |
+| Audio audible | | |
+| Receiving works | | |
+| Pots functional | | |
+| Mic gain works | | |
+| Hardware issues | | |
+| Overall status | | |
